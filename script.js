@@ -202,6 +202,38 @@ ScratchInterpreter.prototype.executeBlock = function(block, thread) {
     sprite.radius = 20 * scale;
     sprite.width = sprite.radius * 2;
     sprite.height = sprite.radius * 2;
+  } else if (text.includes('switch costume to')) {
+    // Costume switching logic (placeholder)
+    var costumeName = this.getInputValue(inputs[0], thread) || 'costume1';
+    console.log('Switching to costume:', costumeName);
+
+  } else if (text === 'next costume') {
+    // Next costume logic (placeholder)
+    console.log('Switching to next costume');
+
+  } else if (text === 'costume #') {
+    // Costume number logic (placeholder)
+    return 1; // Placeholder value
+
+  } else if (text === 'costume name') {
+    // Costume name logic (placeholder)
+    return 'costume1'; // Placeholder value
+
+  } else if (text.includes('set graphic effect')) {
+    // Set graphic effect logic (placeholder)
+    var effectName = this.getInputValue(inputs[0], thread) || 'color';
+    var effectValue = this.getInputValue(inputs[1], thread) || 25;
+    console.log('Setting graphic effect:', effectName, 'to', effectValue);
+
+  } else if (text.includes('change graphic effect')) {
+    // Change graphic effect logic (placeholder)
+    var effectName = this.getInputValue(inputs[0], thread) || 'color';
+    var effectChange = this.getInputValue(inputs[1], thread) || 25;
+    console.log('Changing graphic effect:', effectName, 'by', effectChange);
+
+  } else if (text === 'clear graphic effects') {
+    // Clear graphic effects logic (placeholder)
+    console.log('Clearing graphic effects');
   }
 
   // Sound blocks
@@ -211,6 +243,23 @@ ScratchInterpreter.prototype.executeBlock = function(block, thread) {
     if (text.includes('until done')) {
       return 1000; // Simulate sound duration
     }
+  } else if (text.includes('start sound')) {
+    // Start sound logic (placeholder)
+    var soundName = this.getInputValue(inputs[0], thread) || 'pop';
+    console.log('Starting sound:', soundName);
+
+  } else if (text === 'stop all sounds') {
+    // Stop all sounds logic (placeholder)
+    console.log('Stopping all sounds');
+
+  } else if (text.includes('set volume to')) {
+    // Set volume logic (placeholder)
+    var volume = this.getInputValue(inputs[0], thread) || 100;
+    console.log('Setting volume to:', volume);
+
+  } else if (text === 'volume') {
+    // Volume logic (placeholder)
+    return 100; // Placeholder value
   }
 
   // Control blocks
@@ -245,6 +294,52 @@ ScratchInterpreter.prototype.executeBlock = function(block, thread) {
 
   } else if (text === 'stop this script') {
     thread.isActive = false;
+
+  } else if (text === 'create clone of myself') {
+    this.createClone(sprite);
+  } else if (text === 'delete this clone') {
+    if (sprite.isClone) {
+      sprite.isActive = false;
+      sprite.visible = false;
+      var spriteIndex = sprites.indexOf(sprite);
+      if (spriteIndex > -1) {
+        sprites.splice(spriteIndex, 1);
+      }
+      world.removeMorph(sprite);
+    }
+
+  } else if (text === 'when I start as a clone') {
+    console.log("Starting as a clone");
+
+  }
+
+  // Sensing blocks
+  else if (text.includes('ask') && text.includes('and wait')) {
+    var question = this.getInputValue(inputs[0], thread) || 'What\'s your name?';
+    // Simulate asking and waiting for an answer
+    console.log('Asking:', question);
+    // Store the answer in a global variable (placeholder)
+    this.globalVariables.answer = 'Simulated Answer';
+    return 1000; // Simulate waiting time
+
+  } else if (text === 'answer') {
+    // Return the stored answer
+    return this.globalVariables.answer || '';
+
+  } else if (text.includes('video motion on')) {
+    var target = this.getInputValue(inputs[0], thread) || 'this sprite';
+    // Simulate video motion sensing
+    console.log('Sensing video motion on:', target);
+    return Math.random() * 100; // Placeholder value
+
+  } else if (text === 'timer') {
+    // Simulate timer
+    return Date.now() / 1000; // Placeholder value
+
+  } else if (text === 'reset timer') {
+    // Reset timer (placeholder)
+    console.log('Resetting timer');
+
   }
 
   // Variables
@@ -261,6 +356,40 @@ ScratchInterpreter.prototype.executeBlock = function(block, thread) {
     var newValue = currentValue + change;
     thread.variables[varName] = newValue;
     this.sprites[sprite.spriteName].variables[varName] = newValue;
+
+  } else if (text.includes('add') && text.includes('to')) {
+    var item = this.getInputValue(inputs[0], thread) || 'thing';
+    var listName = this.getInputValue(inputs[1], thread) || 'list';
+    if (!thread.variables[listName]) {
+      thread.variables[listName] = [];
+    }
+    thread.variables[listName].push(item);
+    this.sprites[sprite.spriteName].variables[listName] = thread.variables[listName];
+
+  } else if (text.includes('delete') && text.includes('of')) {
+    var index = (this.getInputValue(inputs[0], thread) || 1) - 1;
+    var listName = this.getInputValue(inputs[1], thread) || 'list';
+    if (thread.variables[listName] && Array.isArray(thread.variables[listName]) && index >= 0 && index < thread.variables[listName].length) {
+      thread.variables[listName].splice(index, 1);
+      this.sprites[sprite.spriteName].variables[listName] = thread.variables[listName];
+    }
+
+  } else if (text.includes('item') && text.includes('of')) {
+    var index = (this.getInputValue(inputs[0], thread) || 1) - 1;
+    var listName = this.getInputValue(inputs[1], thread) || 'list';
+    if (thread.variables[listName] && Array.isArray(thread.variables[listName]) && index >= 0 && index < thread.variables[listName].length) {
+      return thread.variables[listName][index];
+    } else {
+      return '';
+    }
+
+  } else if (text.includes('length of')) {
+    var listName = this.getInputValue(inputs[0], thread) || 'list';
+    if (thread.variables[listName] && Array.isArray(thread.variables[listName])) {
+      return thread.variables[listName].length;
+    } else {
+      return 0;
+    }
   }
 
   // Events
@@ -369,18 +498,44 @@ ScratchInterpreter.prototype.stop = function() {
   var self = this;
   this.threads.forEach(function(thread) {
     thread.isActive = false;
-    self.cleanupThread(thread);
   });
   this.threads = [];
 
   Object.keys(this.sprites).forEach(function(spriteName) {
     self.sprites[spriteName].threads = [];
   });
+};
 
-  // Clean up thread pool
-  this.threadPool = [];
+ScratchInterpreter.prototype.createClone = function(originalSprite) {
+  var clone = new CircleMorph(originalSprite.x + 20, originalSprite.y + 20, originalSprite.radius, {
+    fillColor: originalSprite.fillColor,
+    outlineColor: originalSprite.outlineColor,
+    outlineThickness: originalSprite.outlineThickness,
+    draggable: true
+  });
 
-  console.log('Interpreter stopped. Active threads cleaned up.');
+  clone.spriteName = originalSprite.spriteName + '_clone_' + Date.now();
+  clone.scripts = originalSprite.scripts;
+  clone.scriptJSON = originalSprite.scriptJSON;
+  clone.direction = originalSprite.direction;
+  clone.size = originalSprite.size;
+  clone.visible = originalSprite.visible;
+  clone.isClone = true;
+  clone.cloneId = Date.now();
+
+  originalSprite.world.addMorph(clone);
+  sprites.push(clone);
+  this.addSprite(clone);
+
+  // Start clone scripts
+  var spriteData = this.sprites[clone.spriteName];
+  var scripts = spriteData.scripts; // Corrected: Access scripts from spriteData.scripts
+
+  scripts.forEach(function(script) {
+    if (script.length > 0 && script[0].text.includes('when I start as a clone')) {
+      this.executeScript(spriteData, script.slice(1), 'clone_start');
+    }
+  }.bind(this));
 };
 
 ScratchInterpreter.prototype.getExecutionStats = function() {
@@ -553,14 +708,15 @@ world.addMorph(spriteTitle);
 
 // Block categories
 var categories = [
-  {name: 'Motion', color: '#4A90E2', darkColor: '#357ABD', y: 120},
-  {name: 'Looks', color: '#9C59D1', darkColor: '#7D4BA6', y: 150},
-  {name: 'Sound', color: '#CF63CF', darkColor: '#A64FA6', y: 180},
-  {name: 'Events', color: '#C88330', darkColor: '#A06927', y: 210},
-  {name: 'Control', color: '#E1A91A', darkColor: '#B88715', y: 240},
-  {name: 'Sensing', color: '#5CB3CC', darkColor: '#4A8FA3', y: 270},
-  {name: 'Operators', color: '#59C059', darkColor: '#479947', y: 300},
-  {name: 'Variables', color: '#EE7D16', darkColor: '#BF6412', y: 330}
+  {name: 'Motion', color: '#4A90E2', darkColor: '#357ABD', y: 100},
+  {name: 'Looks', color: '#9C59D1', darkColor: '#7D4BA6', y: 130},
+  {name: 'Sound', color: '#CF63CF', darkColor: '#A64FA6', y: 160},
+  {name: 'Events', color: '#C88330', darkColor: '#A06927', y: 190},
+  {name: 'Control', color: '#E1A91A', darkColor: '#B88715', y: 220},
+  {name: 'Sensing', color: '#5CB3CC', darkColor: '#4A8FA3', y: 250},
+  {name: 'Operators', color: '#59C059', darkColor: '#479947', y: 280},
+  {name: 'Variables', color: '#EE7D16', darkColor: '#BF6412', y: 310},
+  {name: 'My Blocks', color: '#FF6680', darkColor: '#D64C68', y: 340}
 ];
 
 var selectedCategory = 'Motion';
@@ -673,10 +829,53 @@ var blockDefinitions = {
     {text: 'set [] to []', color: '#EE7D16', type: 'command', shape: 'puzzle', inputs: [{type: 'text', default: 'my variable'}, {type: 'text', default: '0'}]},
     {text: 'change [] by []', color: '#EE7D16', type: 'command', shape: 'puzzle', inputs: [{type: 'text', default: 'my variable'}, {type: 'number', default: '1'}]},
     {text: '[]', color: '#EE7D16', type: 'reporter', shape: 'oval', inputs: [{type: 'text', default: 'my variable'}]}
-  ]
-};
+  ],
+  "My Blocks": [
+        {text: 'define my block', color: '#FF6680', type: 'hat', shape: 'hat'},
+        {text: 'my block', color: '#FF6680', type: 'command', shape: 'puzzle'}
+      ]
+    };
 
-var currentBlocks = [];
+    // Add more advanced blocks
+    blockDefinitions.Control.push(
+      {text: 'create clone of myself', color: '#E1A91A', type: 'command', shape: 'puzzle'},
+      {text: 'delete this clone', color: '#E1A91A', type: 'cap', shape: 'cap'},
+      {text: 'when I start as a clone', color: '#E1A91A', type: 'hat', shape: 'hat'}
+    );
+
+    blockDefinitions.Sensing.push(
+      {text: 'ask [] and wait', color: '#5CB3CC', type: 'command', shape: 'puzzle', inputs: [{type: 'text', default: 'What\'s your name?'}]},
+      {text: 'answer', color: '#5CB3CC', type: 'reporter', shape: 'oval'},
+      {text: 'video motion on []', color: '#5CB3CC', type: 'reporter', shape: 'oval', inputs: [{type: 'text', default: 'this sprite'}]},
+      {text: 'timer', color: '#5CB3CC', type: 'reporter', shape: 'oval'},
+      {text: 'reset timer', color: '#5CB3CC', type: 'command', shape: 'puzzle'}
+    );
+
+    blockDefinitions.Variables.push(
+      {text: 'add [] to []', color: '#EE7D16', type: 'command', shape: 'puzzle', inputs: [{type: 'text', default: 'thing'}, {type: 'text', default: 'list'}]},
+      {text: 'delete [] of []', color: '#EE7D16', type: 'command', shape: 'puzzle', inputs: [{type: 'number', default: '1'}, {type: 'text', default: 'list'}]},
+      {text: 'item [] of []', color: '#EE7D16', type: 'reporter', shape: 'oval', inputs: [{type: 'number', default: '1'}, {type: 'text', default: 'list'}]},
+      {text: 'length of []', color: '#EE7D16', type: 'reporter', shape: 'oval', inputs: [{type: 'text', default: 'list'}]}
+    );
+
+    blockDefinitions.Looks.push(
+      {text: 'switch costume to []', color: '#9C59D1', type: 'command', shape: 'puzzle', inputs: [{type: 'text', default: 'costume1'}]},
+      {text: 'next costume', color: '#9C59D1', type: 'command', shape: 'puzzle'},
+      {text: 'costume #', color: '#9C59D1', type: 'reporter', shape: 'oval'},
+      {text: 'costume name', color: '#9C59D1', type: 'reporter', shape: 'oval'},
+      {text: 'set graphic effect [] to []', color: '#9C59D1', type: 'command', shape: 'puzzle', inputs: [{type: 'text', default: 'color'}, {type: 'number', default: '25'}]},
+      {text: 'change graphic effect [] by []', color: '#9C59D1', type: 'command', shape: 'puzzle', inputs: [{type: 'text', default: 'color'}, {type: 'number', default: '25'}]},
+      {text: 'clear graphic effects', color: '#9C59D1', type: 'command', shape: 'puzzle'}
+    );
+
+    blockDefinitions.Sound.push(
+      {text: 'start sound []', color: '#CF63CF', type: 'command', shape: 'puzzle', inputs: [{type: 'text', default: 'pop'}]},
+      {text: 'stop all sounds', color: '#CF63CF', type: 'command', shape: 'puzzle'},
+      {text: 'set volume to []%', color: '#CF63CF', type: 'command', shape: 'puzzle', inputs: [{type: 'number', default: '100'}]},
+      {text: 'volume', color: '#CF63CF', type: 'reporter', shape: 'oval'}
+    );
+
+    var currentBlocks = [];
 var duplicatedBlocks = [];
 
 function showBlocksForCategory(categoryName) {
@@ -689,6 +888,38 @@ function showBlocksForCategory(categoryName) {
 
   var blocks = blockDefinitions[categoryName] || [];
   var yPos = 370;
+
+  // Add Create Variable button for Variables category
+  if (categoryName === "Variables") {
+    var createVarButton = new TextMorph(40, yPos, 200, 25, "Create Variable", {
+      font: '12px Arial',
+      color: '#fff',
+      fillColor: '#4CAF50',
+      outlineColor: '#45a049',
+      outlineThickness: 1,
+      cornerRadius: 3,
+      textAlign: 'center',
+      draggable: false
+    });
+
+    createVarButton.onMouseDown = function() {
+      createVariable();
+    };
+
+    createVarButton.onTouchStart = function(evt, pos) {
+      createVariable();
+    };
+
+    world.addMorph(createVarButton);
+    currentBlocks.push(createVarButton);
+    yPos += 35;
+  }
+
+  if (categoryName === "My Blocks") {
+      yPos = yPos;
+  } else {
+      yPos = yPos;
+  }
 
   blocks.forEach(function(blockDef, index) {
     var block = new ScratchBlockMorph(40, yPos, blockDef.text, blockDef.color, blockDef.type, {
@@ -792,6 +1023,17 @@ function createSprite(x, y, name, color) {
   sprite.direction = 90;
   sprite.size = 100;
   sprite.visible = true;
+  
+  // Initialize costume system
+  sprite.costumes = [
+    {
+      name: 'costume1',
+      type: 'circle',
+      color: color || '#ff6b6b',
+      isDefault: true
+    }
+  ];
+  sprite.currentCostume = 0;
 
   world.addMorph(sprite);
   sprites.push(sprite);
@@ -903,9 +1145,21 @@ function updateSpriteList() {
   existingThumbs.forEach(thumb => world.removeMorph(thumb));
 
   sprites.forEach(function(sprite, index) {
-    var yPos = 430 + index * 30;
+    var yPos = 430 + index * 35;
 
-    var spriteThumb = new CircleMorph(780, yPos, 15, {
+    // Create rounded rectangle container for sprite thumbnail
+    var spriteContainer = new Morph(775, yPos - 2, 180, 30, {
+      fillColor: selectedSprite === sprite ? '#444' : '#333',
+      outlineColor: selectedSprite === sprite ? '#666' : '#555',
+      outlineThickness: 1,
+      cornerRadius: 5,
+      draggable: false
+    });
+    spriteContainer.isSpriteThumb = true;
+    spriteContainer.linkedSprite = sprite;
+
+    // Create circular sprite thumbnail inside container
+    var spriteThumb = new CircleMorph(780, yPos, 12, {
       fillColor: sprite.fillColor,
       outlineColor: selectedSprite === sprite ? '#fff' : '#666',
       outlineThickness: selectedSprite === sprite ? 2 : 1,
@@ -914,22 +1168,75 @@ function updateSpriteList() {
     spriteThumb.isSpriteThumb = true;
     spriteThumb.linkedSprite = sprite;
 
-    spriteThumb.onMouseDown = function() {
-      switchToSprite(this.linkedSprite);
-    };
-
-    spriteThumb.onTouchStart = function(evt, pos) {
-      switchToSprite(this.linkedSprite);
-    };
-
-    var spriteLabel = new TextMorph(810, yPos - 5, 100, 20, sprite.spriteName, {
+    // Create editable sprite label
+    var spriteLabel = new TextMorph(805, yPos - 3, 120, 18, sprite.spriteName, {
       font: '12px Arial',
       color: selectedSprite === sprite ? '#fff' : '#ccc',
       fillColor: 'transparent',
-      outlineColor: 'transparent'
+      outlineColor: 'transparent',
+      draggable: false
     });
     spriteLabel.isSpriteThumb = true;
+    spriteLabel.linkedSprite = sprite;
+    spriteLabel.isEditing = false;
 
+    // Click handlers for container and thumbnail
+    var clickHandler = function() {
+      switchToSprite(sprite);
+    };
+
+    spriteContainer.onMouseDown = clickHandler;
+    spriteContainer.onTouchStart = function(evt, pos) {
+      clickHandler();
+    };
+
+    spriteThumb.onMouseDown = clickHandler;
+    spriteThumb.onTouchStart = function(evt, pos) {
+      clickHandler();
+    };
+
+    // Double-click handler for label to enable editing
+    spriteLabel.onMouseDown = function(evt) {
+      if (evt.detail === 2) { // Double-click
+        this.isEditing = true;
+        this.originalText = this.text;
+        this.fillColor = '#fff';
+        this.color = '#000';
+        this.outlineColor = '#333';
+        this.outlineThickness = 1;
+      } else {
+        switchToSprite(this.linkedSprite);
+      }
+    };
+
+    spriteLabel.onKeyDown = function(evt) {
+      if (this.isEditing) {
+        if (evt.key === 'Enter') {
+          // Confirm edit
+          this.linkedSprite.spriteName = this.text;
+          this.isEditing = false;
+          this.fillColor = 'transparent';
+          this.color = selectedSprite === this.linkedSprite ? '#fff' : '#ccc';
+          this.outlineColor = 'transparent';
+          this.outlineThickness = 0;
+          updateSpriteList();
+        } else if (evt.key === 'Escape') {
+          // Cancel edit
+          this.text = this.originalText;
+          this.isEditing = false;
+          this.fillColor = 'transparent';
+          this.color = selectedSprite === this.linkedSprite ? '#fff' : '#ccc';
+          this.outlineColor = 'transparent';
+          this.outlineThickness = 0;
+        } else if (evt.key === 'Backspace') {
+          this.text = this.text.slice(0, -1);
+        } else if (evt.key.length === 1) {
+          this.text += evt.key;
+        }
+      }
+    };
+
+    world.addMorph(spriteContainer);
     world.addMorph(spriteThumb);
     world.addMorph(spriteLabel);
   });
@@ -1071,6 +1378,62 @@ stopButton.onTouchStart = function(evt, pos) {
   interpreter.stop();
 };
 
+// Variable Management
+var customVariables = [];
+
+function createVariable() {
+  var variableName = prompt("Enter variable name:");
+  if (variableName && variableName.trim()) {
+    variableName = variableName.trim();
+    
+    // Check if variable already exists
+    if (customVariables.indexOf(variableName) !== -1) {
+      alert("Variable '" + variableName + "' already exists!");
+      return;
+    }
+    
+    // Add to custom variables list
+    customVariables.push(variableName);
+    
+    // Add new variable blocks to the Variables category
+    blockDefinitions.Variables.push({
+      text: variableName,
+      color: '#EE7D16',
+      type: 'reporter',
+      shape: 'oval',
+      isCustomVariable: true,
+      variableName: variableName
+    });
+    
+    blockDefinitions.Variables.push({
+      text: 'set ' + variableName + ' to []',
+      color: '#EE7D16',
+      type: 'command',
+      shape: 'puzzle',
+      inputs: [{type: 'text', default: '0'}],
+      isCustomVariable: true,
+      variableName: variableName
+    });
+    
+    blockDefinitions.Variables.push({
+      text: 'change ' + variableName + ' by []',
+      color: '#EE7D16',
+      type: 'command',
+      shape: 'puzzle',
+      inputs: [{type: 'number', default: '1'}],
+      isCustomVariable: true,
+      variableName: variableName
+    });
+    
+    // Refresh the Variables category if it's currently selected
+    if (selectedCategory === 'Variables') {
+      showBlocksForCategory('Variables');
+    }
+    
+    console.log('Created variable:', variableName);
+  }
+}
+
 // Project Management Functions
 function saveProject() {
   // Save current sprite scripts
@@ -1090,10 +1453,13 @@ function saveProject() {
         size: sprite.size || 100,
         visible: sprite.visible !== false,
         scriptJSON: sprite.scriptJSON || '[]',
-        scripts: sprite.scripts || []
+        scripts: sprite.scripts || [],
+        costumes: sprite.costumes || [],
+        currentCostume: sprite.currentCostume || 0
       };
     }),
     selectedSpriteName: selectedSprite ? selectedSprite.spriteName : null,
+    customVariables: customVariables,
     createdAt: new Date().toISOString()
   };
 
@@ -1151,7 +1517,58 @@ function loadProject() {
           sprite.visible = spriteData.visible !== false;
           sprite.scriptJSON = spriteData.scriptJSON || '[]';
           sprite.scripts = spriteData.scripts || [];
+          sprite.costumes = spriteData.costumes || [
+            {
+              name: 'costume1',
+              type: 'circle',
+              color: sprite.fillColor,
+              isDefault: true
+            }
+          ];
+          sprite.currentCostume = spriteData.currentCostume || 0;
         });
+
+        // Restore custom variables
+        if (projectData.customVariables) {
+          customVariables = projectData.customVariables;
+          
+          // Remove old custom variable blocks
+          blockDefinitions.Variables = blockDefinitions.Variables.filter(function(block) {
+            return !block.isCustomVariable;
+          });
+          
+          // Re-add custom variable blocks
+          customVariables.forEach(function(variableName) {
+            blockDefinitions.Variables.push({
+              text: variableName,
+              color: '#EE7D16',
+              type: 'reporter',
+              shape: 'oval',
+              isCustomVariable: true,
+              variableName: variableName
+            });
+            
+            blockDefinitions.Variables.push({
+              text: 'set ' + variableName + ' to []',
+              color: '#EE7D16',
+              type: 'command',
+              shape: 'puzzle',
+              inputs: [{type: 'text', default: '0'}],
+              isCustomVariable: true,
+              variableName: variableName
+            });
+            
+            blockDefinitions.Variables.push({
+              text: 'change ' + variableName + ' by []',
+              color: '#EE7D16',
+              type: 'command',
+              shape: 'puzzle',
+              inputs: [{type: 'number', default: '1'}],
+              isCustomVariable: true,
+              variableName: variableName
+            });
+          });
+        }
 
         // Set selected sprite
         if (projectData.selectedSpriteName) {
@@ -1312,6 +1729,223 @@ function hideExtensions() {
   extensionsVisible = false;
 }
 
+// ScratchBlockMorph.prototype.onDragStart = function() {
+//   this._checkForConnection();
+// };
+
+ScratchBlockMorph.prototype.onDragStart = function() {
+  // Store the initial positions of all connected blocks
+  this._dragChain = this._getConnectedChain();
+  this._dragChain.forEach(function(block) {
+    block._dragStartX = block.x;
+    block._dragStartY = block.y;
+  });
+  this._checkForConnection();
+
+  // Disconnect lower blocks
+  if (this.connectBelow) {
+    this.connectBelow.connectAbove = null;
+    this.connectBelow.isConnected = false;
+    this.connectBelow = null;
+  }
+};
+
+ScratchBlockMorph.prototype._updateConnectedBlockPositions = function() {
+  var current = this.connectBelow;
+  var currentY = this.y + this.height - 3;
+
+  while (current) {
+    current.y = currentY;
+    currentY += current.height - 3;
+    current = current.connectBelow;
+  }
+};
+
+ScratchBlockMorph.prototype._getConnectedChain = function() {
+  var chain = [];
+  var topBlock = this;
+
+  // Find the topmost block in the chain
+  while (topBlock.connectAbove) {
+    topBlock = topBlock.connectAbove;
+  }
+
+  // Collect all blocks in the chain from top to bottom
+  var current = topBlock;
+  while (current) {
+    chain.push(current);
+    current = current.connectBelow;
+  }
+
+  return chain;
+};
+
+ScratchBlockMorph.prototype.setPosition = function(x, y) {
+  // If we're dragging and have a chain, move all connected blocks
+  if (this._dragChain && world._draggingMorph === this) {
+    var deltaX = x - this.x;
+    var deltaY = y - this.y;
+
+    this._dragChain.forEach(function(block) {
+      if (block !== this) {
+        block.x += deltaX;
+        block.y += deltaY;
+      }
+    }.bind(this));
+  }
+
+  this.x = x;
+  this.y = y;
+  if (this.onPositionChanged) this.onPositionChanged(x, y);
+};
+
+ScratchBlockMorph.prototype._checkForConnection = function() {
+  if (!this.world) return;
+
+  var snapDistance = 20;
+  var connected = false;
+  var chain = this._getConnectedChain();
+
+  for (var i = 0; i < this.world.morphs.length; i++) {
+    var otherBlock = this.world.morphs[i];
+    if (otherBlock instanceof ScratchBlockMorph && otherBlock !== this && 
+        chain.indexOf(otherBlock) === -1) {
+      var distance = Math.sqrt(
+        Math.pow(this.x - otherBlock.x, 2) + 
+        Math.pow(this.y - (otherBlock.y + otherBlock.height), 2)
+      );
+
+      if (distance < snapDistance && !otherBlock.connectBelow && !this.connectAbove) {
+        // Snap the entire chain
+        var deltaX = otherBlock.x - this.x;
+        var deltaY = (otherBlock.y + otherBlock.height - 3) - this.y;
+
+        chain.forEach(function(block) {
+          block.x += deltaX;
+          block.y += deltaY;
+        });
+
+        this.connectAbove = otherBlock;
+        otherBlock.connectBelow = this;
+        this.isConnected = true;
+
+        if (otherBlock.insideCBlock) {
+          chain.forEach(function(block) {
+            block.insideCBlock = true;
+          });
+        }
+
+        connected = true;
+        break;
+      }
+
+      if (otherBlock.blockType === 'c_block' && !this.connectAbove) {
+        var innerX = otherBlock.x + 20;
+        var innerY = otherBlock.y + 30;
+        var innerDistance = Math.sqrt(
+          Math.pow(this.x - innerX, 2) + 
+          Math.pow(this.y - innerY, 2)
+        );
+
+        if (innerDistance < snapDistance * 2) {
+          var existingInnerBlocks = [];
+          for (var j = 0; j < this.world.morphs.length; j++) {
+            var existingBlock = this.world.morphs[j];
+            if (existingBlock instanceof ScratchBlockMorph && 
+                existingBlock.connectAbove === otherBlock && 
+                existingBlock.insideCBlock &&
+                chain.indexOf(existingBlock) === -1) {
+              existingInnerBlocks.push(existingBlock);
+            }
+          }
+
+          var targetX, targetY;
+          if (existingInnerBlocks.length > 0) {
+            var bottomBlock = existingInnerBlocks[0];
+            existingInnerBlocks.forEach(function(block) {
+              var current = block;
+              while (current.connectBelow) {
+                current = current.connectBelow;
+              }
+              if (current.y + current.height > bottomBlock.y + bottomBlock.height) {
+                bottomBlock = current;
+              }
+            });
+
+            targetX = bottomBlock.x;
+            targetY = bottomBlock.y + bottomBlock.height - 3;
+            this.connectAbove = bottomBlock;
+            bottomBlock.connectBelow = this;
+          } else {
+            targetX = innerX;
+            targetY = innerY;
+            this.connectAbove = otherBlock;
+          }
+
+          // Move the entire chain
+          var deltaX = targetX - this.x;
+          var deltaY = targetY - this.y;
+
+          chain.forEach(function(block) {
+            block.x += deltaX;
+            block.y += deltaY;
+            block.insideCBlock = true;
+          });
+
+          this.isConnected = true;
+          connected = true;
+          otherBlock._updateCBlockHeight();
+          break;
+        }
+      }
+    }
+  }
+
+  if (!connected) {
+    this.isConnected = false;
+    var wasInsideCBlock = this.insideCBlock;
+    var previousAbove = this.connectAbove;
+
+    this.connectAbove = null;
+
+    chain.forEach(function(block) {
+      block.insideCBlock = false;
+    });
+
+    if (this.connectBelow) {
+      this.connectBelow.connectAbove = null;
+      this.connectBelow.isConnected = false;
+    }
+    this.connectBelow = null;
+  }
+
+  this._updateAllCBlockHeights();
+};
+
+ScratchBlockMorph.prototype.onDragEnd = function() {
+  this._checkForConnection();
+  // Clean up drag chain data
+  if (this._dragChain) {
+    this._dragChain.forEach(function(block) {
+      delete block._dragStartX;
+      delete block._dragStartY;
+    });
+    delete this._dragChain;
+  }
+};
+
+ScratchBlockMorph.prototype.onTouchEnd = function(evt) {
+  this._checkForConnection();
+  // Clean up drag chain data
+  if (this._dragChain) {
+    this._dragChain.forEach(function(block) {
+      delete block._dragStartX;
+      delete block._dragStartY;
+    });
+    delete this._dragChain;
+  }
+};
+
 // Initialize
 showBlocksForCategory('Motion');
 updateSpriteList();
@@ -1340,4 +1974,374 @@ window.addEventListener('keydown', function(evt) {
       evt.preventDefault();
     }
   }
+});
+
+// Costume Tab
+var costumesTab = new TextMorph(330, 8, 100, 24, "🎨 Costumes", {
+    font: '12px Arial',
+    color: '#fff',
+    fillColor: '#E91E63',
+    outlineColor: '#C2185B',
+    outlineThickness: 1,
+    cornerRadius: 3,
+    textAlign: 'center'
+});
+
+world.addMorph(costumesTab);
+
+// Costume management variables
+var costumesPanelVisible = false;
+var costumesPanel = null;
+
+// Implement Costume Functionality
+costumesTab.onMouseDown = function() {
+    showCostumes();
+};
+
+costumesTab.onTouchStart = function(evt, pos) {
+    showCostumes();
+};
+
+function showCostumes() {
+    if (costumesPanelVisible) {
+        hideCostumes();
+        return;
+    }
+
+    if (!selectedSprite) {
+        alert("Please select a sprite first!");
+        return;
+    }
+
+    // Initialize costumes array if it doesn't exist
+    if (!selectedSprite.costumes) {
+        selectedSprite.costumes = [
+            {
+                name: 'costume1',
+                type: 'circle',
+                color: selectedSprite.fillColor || '#ff6b6b',
+                isDefault: true
+            }
+        ];
+        selectedSprite.currentCostume = 0;
+    }
+
+    costumesPanel = new Morph(300, 100, 450, 500, {
+        draggable: false,
+        fillColor: '#1a1a1a',
+        outlineColor: '#555',
+        outlineThickness: 2,
+        cornerRadius: 8
+    });
+
+    var costumeTitle = new TextMorph(315, 120, 200, 30, "Costumes for " + selectedSprite.spriteName, {
+        font: 'bold 16px Arial',
+        color: '#fff',
+        fillColor: 'transparent',
+        outlineColor: 'transparent'
+    });
+
+    var closeButton = new TextMorph(720, 110, 30, 30, "✕", {
+        font: 'bold 16px Arial',
+        color: '#fff',
+        fillColor: '#f44336',
+        outlineColor: '#d32f2f',
+        outlineThickness: 1,
+        cornerRadius: 3,
+        textAlign: 'center'
+    });
+
+    closeButton.onMouseDown = function() {
+        hideCostumes();
+    };
+
+    closeButton.onTouchStart = function(evt, pos) {
+        hideCostumes();
+    };
+
+    // Add costume button
+    var addCostumeButton = new TextMorph(315, 550, 120, 30, "📁 Add Costume", {
+        font: '12px Arial',
+        color: '#fff',
+        fillColor: '#4CAF50',
+        outlineColor: '#45a049',
+        outlineThickness: 1,
+        cornerRadius: 3,
+        textAlign: 'center'
+    });
+
+    addCostumeButton.onMouseDown = function() {
+        addCostume();
+    };
+
+    addCostumeButton.onTouchStart = function(evt, pos) {
+        addCostume();
+    };
+
+    // Create color costume button
+    var createColorCostumeButton = new TextMorph(445, 550, 140, 30, "🎨 Create Color", {
+        font: '12px Arial',
+        color: '#fff',
+        fillColor: '#9C27B0',
+        outlineColor: '#7B1FA2',
+        outlineThickness: 1,
+        cornerRadius: 3,
+        textAlign: 'center'
+    });
+
+    createColorCostumeButton.onMouseDown = function() {
+        createColorCostume();
+    };
+
+    createColorCostumeButton.onTouchStart = function(evt, pos) {
+        createColorCostume();
+    };
+
+    world.addMorph(costumesPanel);
+    world.addMorph(costumeTitle);
+    world.addMorph(closeButton);
+    world.addMorph(addCostumeButton);
+    world.addMorph(createColorCostumeButton);
+
+    refreshCostumeList();
+    costumesPanelVisible = true;
+}
+
+function hideCostumes() {
+    if (!costumesPanelVisible) return;
+
+    // Remove all costume-related morphs
+    var morphsToRemove = world.morphs.filter(function(morph) {
+        return morph === costumesPanel || 
+               (morph.isCostumeItem) ||
+               (morph.x >= 300 && morph.x <= 750 && morph.y >= 100 && morph.y <= 600);
+    });
+
+    morphsToRemove.forEach(function(morph) {
+        world.removeMorph(morph);
+    });
+
+    costumesPanel = null;
+    costumesPanelVisible = false;
+}
+
+function refreshCostumeList() {
+    if (!selectedSprite || !selectedSprite.costumes) return;
+
+    // Remove existing costume items
+    var existingItems = world.morphs.filter(m => m.isCostumeItem);
+    existingItems.forEach(item => world.removeMorph(item));
+
+    selectedSprite.costumes.forEach(function(costume, index) {
+        var yPos = 160 + index * 60;
+
+        // Costume container
+        var costumeContainer = new Morph(320, yPos, 410, 50, {
+            draggable: false,
+            fillColor: selectedSprite.currentCostume === index ? '#444' : '#2a2a2a',
+            outlineColor: selectedSprite.currentCostume === index ? '#666' : '#444',
+            outlineThickness: 1,
+            cornerRadius: 5
+        });
+        costumeContainer.isCostumeItem = true;
+
+        // Costume preview
+        var previewContainer = new Morph(330, yPos + 10, 30, 30, {
+            draggable: false,
+            fillColor: '#333',
+            outlineColor: '#555',
+            outlineThickness: 1,
+            cornerRadius: 3
+        });
+        previewContainer.isCostumeItem = true;
+
+        var preview;
+        if (costume.type === 'circle') {
+            preview = new CircleMorph(335, yPos + 15, 10, {
+                fillColor: costume.color,
+                outlineColor: '#fff',
+                outlineThickness: 1,
+                draggable: false
+            });
+        } else if (costume.type === 'image' && costume.imageData) {
+            preview = new ImageMorph(330, yPos + 10, 30, 30, costume.imageData, {
+                draggable: false
+            });
+        } else {
+            preview = new TextMorph(335, yPos + 20, 20, 10, "?", {
+                font: '14px Arial',
+                color: '#fff',
+                fillColor: 'transparent',
+                draggable: false
+            });
+        }
+        preview.isCostumeItem = true;
+
+        // Costume name
+        var costumeName = new TextMorph(375, yPos + 15, 200, 20, costume.name, {
+            font: '14px Arial',
+            color: selectedSprite.currentCostume === index ? '#fff' : '#ccc',
+            fillColor: 'transparent',
+            outlineColor: 'transparent',
+            draggable: false
+        });
+        costumeName.isCostumeItem = true;
+
+        // Switch button
+        var switchButton = new TextMorph(590, yPos + 15, 60, 20, "Switch", {
+            font: '12px Arial',
+            color: '#fff',
+            fillColor: '#2196F3',
+            outlineColor: '#1976D2',
+            outlineThickness: 1,
+            cornerRadius: 3,
+            textAlign: 'center',
+            draggable: false
+        });
+        switchButton.isCostumeItem = true;
+        switchButton.costumeIndex = index;
+
+        switchButton.onMouseDown = function() {
+            switchCostume(this.costumeIndex);
+        };
+
+        switchButton.onTouchStart = function(evt, pos) {
+            switchCostume(this.costumeIndex);
+        };
+
+        // Delete button (only if not the last costume)
+        if (selectedSprite.costumes.length > 1) {
+            var deleteButton = new TextMorph(660, yPos + 15, 50, 20, "Delete", {
+                font: '12px Arial',
+                color: '#fff',
+                fillColor: '#f44336',
+                outlineColor: '#d32f2f',
+                outlineThickness: 1,
+                cornerRadius: 3,
+                textAlign: 'center',
+                draggable: false
+            });
+            deleteButton.isCostumeItem = true;
+            deleteButton.costumeIndex = index;
+
+            deleteButton.onMouseDown = function() {
+                deleteCostume(this.costumeIndex);
+            };
+
+            deleteButton.onTouchStart = function(evt, pos) {
+                deleteCostume(this.costumeIndex);
+            };
+
+            world.addMorph(deleteButton);
+        }
+
+        world.addMorph(costumeContainer);
+        world.addMorph(previewContainer);
+        world.addMorph(preview);
+        world.addMorph(costumeName);
+        world.addMorph(switchButton);
+    });
+}
+
+function switchCostume(costumeIndex) {
+    if (!selectedSprite || !selectedSprite.costumes[costumeIndex]) return;
+
+    selectedSprite.currentCostume = costumeIndex;
+    var costume = selectedSprite.costumes[costumeIndex];
+
+    // Update sprite appearance
+    if (costume.type === 'circle') {
+        selectedSprite.fillColor = costume.color;
+    } else if (costume.type === 'image' && costume.imageData) {
+        // For images, we could implement image rendering in the future
+        console.log('Image costume selected:', costume.name);
+    }
+
+    refreshCostumeList();
+}
+
+function deleteCostume(costumeIndex) {
+    if (!selectedSprite || selectedSprite.costumes.length <= 1) return;
+
+    selectedSprite.costumes.splice(costumeIndex, 1);
+
+    // Adjust current costume index if necessary
+    if (selectedSprite.currentCostume >= costumeIndex) {
+        selectedSprite.currentCostume = Math.max(0, selectedSprite.currentCostume - 1);
+    }
+
+    // Switch to the current costume to update appearance
+    switchCostume(selectedSprite.currentCostume);
+}
+
+function addCostume() {
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+
+    input.onchange = function(event) {
+        var file = event.target.files[0];
+        if (!file) return;
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var costumeName = prompt("Enter costume name:", file.name.replace(/\.[^/.]+$/, ""));
+            if (!costumeName) return;
+
+            selectedSprite.costumes.push({
+                name: costumeName,
+                type: 'image',
+                imageData: e.target.result
+            });
+
+            refreshCostumeList();
+        };
+
+        reader.readAsDataURL(file);
+    };
+
+    input.click();
+}
+
+function createColorCostume() {
+    var costumeName = prompt("Enter costume name:", "costume" + (selectedSprite.costumes.length + 1));
+    if (!costumeName) return;
+
+    var colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#f368e0', '#fd79a8', '#fdcb6e', '#6c5ce7'];
+    var randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+    selectedSprite.costumes.push({
+        name: costumeName,
+        type: 'circle',
+        color: randomColor
+    });
+
+    refreshCostumeList();
+}
+
+// Make stage fit screen
+
+world.setWidth(window.innerWidth);
+world.setHeight(window.innerHeight - 40); // Subtract top bar height
+
+stage.setWidth(window.innerWidth - 780);
+stage.setHeight(window.innerHeight - 100);
+
+spriteList.setX(window.innerWidth - 420);
+spriteList.setY(stage.y + stage.height + 20);
+spriteList.setWidth(window.innerWidth - 780);
+spriteList.setHeight(window.innerHeight - stage.height - 180);
+
+// Responsive Canvas
+window.addEventListener('resize', function() {
+    world.setWidth(window.innerWidth);
+    world.setHeight(window.innerHeight - 40);
+
+    stage.setWidth(window.innerWidth - 780);
+    stage.setHeight(window.innerHeight - 100);
+
+    spriteList.setX(window.innerWidth - 420);
+    spriteList.setY(stage.y + stage.height + 20);
+    spriteList.setWidth(window.innerWidth - 780);
+    spriteList.setHeight(window.innerHeight - stage.height - 180);
 });
