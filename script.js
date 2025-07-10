@@ -573,20 +573,29 @@ categories.forEach(function(cat) {
     font: '14px Arial',
     color: cat.name === selectedCategory ? '#fff' : '#ccc',
     fillColor: 'transparent',
-    outlineColor: 'transparent'
+    outlineColor: 'transparent',
+    draggable: false
   });
 
-  button.onMouseDown = function() {
-    selectedCategory = cat.name;
-    updateCategorySelection();
-    showBlocksForCategory(cat.name);
-  };
+  // Create click handler function that captures the current category
+  (function(currentCat) {
+    var clickHandler = function() {
+      selectedCategory = currentCat.name;
+      updateCategorySelection();
+      showBlocksForCategory(currentCat.name);
+    };
 
-  button.onTouchStart = function(evt, pos) {
-    selectedCategory = cat.name;
-    updateCategorySelection();
-    showBlocksForCategory(cat.name);
-  };
+    // Add click handlers to both button and label
+    button.onMouseDown = clickHandler;
+    button.onTouchStart = function(evt, pos) {
+      clickHandler();
+    };
+
+    label.onMouseDown = clickHandler;
+    label.onTouchStart = function(evt, pos) {
+      clickHandler();
+    };
+  })(cat);
 
   world.addMorph(button);
   world.addMorph(label);
