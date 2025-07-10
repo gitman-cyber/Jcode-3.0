@@ -1904,18 +1904,20 @@ ScratchBlockMorph.prototype._drawCBlock = function(ctx) {
   var trapH = 6;
   var trapOffset = 25;
   
+  // Top indent (goes inside the block above)
   if (!this.isConnected) {
     ctx.fillStyle = this.blockColor;
     ctx.beginPath();
     ctx.moveTo(this.x + trapOffset, this.y);
-    ctx.lineTo(this.x + trapOffset + 3, this.y - trapH);
-    ctx.lineTo(this.x + trapOffset + trapW - 3, this.y - trapH);
+    ctx.lineTo(this.x + trapOffset + 3, this.y + trapH);
+    ctx.lineTo(this.x + trapOffset + trapW - 3, this.y + trapH);
     ctx.lineTo(this.x + trapOffset + trapW, this.y);
     ctx.lineTo(this.x + trapOffset, this.y);
     ctx.fill();
     ctx.stroke();
   }
   
+  // Bottom outdent (sticks out for blocks below to connect)
   ctx.fillStyle = this.blockColor;
   ctx.beginPath();
   ctx.moveTo(this.x + trapOffset, this.y + this.height);
@@ -1945,10 +1947,11 @@ ScratchBlockMorph.prototype._drawPuzzlePiece = function(ctx) {
 
   ctx.moveTo(x + this.cornerRadius, y);
 
+  // Top indent (goes inside the block above)
   if (this.blockType !== 'hat' && !this.isConnected) {
     ctx.lineTo(x + trapOffset, y);
-    ctx.lineTo(x + trapOffset + 3, y - trapH);
-    ctx.lineTo(x + trapOffset + trapW - 3, y - trapH);
+    ctx.lineTo(x + trapOffset + 3, y + trapH);
+    ctx.lineTo(x + trapOffset + trapW - 3, y + trapH);
     ctx.lineTo(x + trapOffset + trapW, y);
   }
   ctx.lineTo(x + w - this.cornerRadius, y);
@@ -1957,10 +1960,11 @@ ScratchBlockMorph.prototype._drawPuzzlePiece = function(ctx) {
   ctx.lineTo(x + w, y + h - this.cornerRadius);
   ctx.arcTo(x + w, y + h, x + w - this.cornerRadius, y + h, this.cornerRadius);
 
+  // Bottom outdent (sticks out for blocks below to connect)
   if (this.blockType !== 'cap') {
     ctx.lineTo(x + trapOffset + trapW, y + h);
-    ctx.lineTo(x + trapOffset + trapW - 3, y + h - trapH);
-    ctx.lineTo(x + trapOffset + 3, y + h - trapH);
+    ctx.lineTo(x + trapOffset + trapW - 3, y + h + trapH);
+    ctx.lineTo(x + trapOffset + 3, y + h + trapH);
     ctx.lineTo(x + trapOffset, y + h);
   }
   ctx.lineTo(x + this.cornerRadius, y + h);
